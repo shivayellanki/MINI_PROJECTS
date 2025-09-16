@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quick Quiz</title>
+<style>
+  body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:30px;background:#f0fff4;color:#062d1b}
+  .wrap{max-width:720px;margin:auto;background:#fff;padding:18px;border-radius:12px;box-shadow:0 8px 22px rgba(0,0,0,0.06)}
+  h1{margin-top:0}
+  .q{margin:12px 0;padding:12px;border-radius:8px;background:#f7fef5}
+  .options button{display:block;margin:8px 0;padding:10px;border-radius:8px;border:0;cursor:pointer}
+  .result{font-weight:700;margin-top:12px}
+  a{display:block;margin-top:12px}
+</style></head><body>
+<div class="wrap">
+  <h1>Mini Trivia</h1>
+  <div id="quiz"></div>
+  <div class="result" id="result"></div>
+  <a href="index.html">← Back to index</a>
+</div>
+<script>
+(() => {
+  const data = [
+    {q: "Which planet is known as the Red Planet?", choices:["Earth","Mars","Jupiter","Venus"], a:1},
+    {q: "What is 7 × 8?", choices:["54","56","58","52"], a:1},
+    {q: "Which language runs in web browsers?", choices:["Python","C++","JavaScript","Rust"], a:2}
+  ]
+  const quiz = document.getElementById('quiz'), result = document.getElementById('result')
+  let score = 0, answered = 0
+  data.forEach((it, idx) => {
+    const div = document.createElement('div'); div.className='q'
+    div.innerHTML = '<strong>Q'+(idx+1)+'.</strong> '+it.q + '<div class="options"></div>'
+    const opts = div.querySelector('.options')
+    it.choices.forEach((c,i)=>{
+      const b = document.createElement('button'); b.textContent = c
+      b.addEventListener('click', ()=>{
+        if(b.disabled) return
+        b.disabled = true
+        Array.from(opts.children).forEach(x=>x.disabled=true)
+        if(i===it.a){ b.textContent += ' ✓'; score++ } else { b.textContent += ' ✗' }
+        answered++
+        if(answered===data.length) result.textContent = 'Score: '+score+' / '+data.length
+      })
+      opts.appendChild(b)
+    })
+    quiz.appendChild(div)
+  })
+})()
+</script>
+</body></html>
