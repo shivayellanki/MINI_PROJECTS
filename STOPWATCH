@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stopwatch</title>
+<style>
+  body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:30px;background:#fffbe8;color:#44320b}
+  .wrap{max-width:420px;margin:auto;text-align:center}
+  .time{font-size:40px;background:#fff;padding:20px;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,0.06)}
+  button{margin:8px;padding:10px 14px;border-radius:8px;border:0;cursor:pointer}
+  ul{list-style:none;padding:0;margin-top:12px}
+  li{background:#fff;padding:8px;border-radius:8px;margin-bottom:6px}
+  a{display:block;margin-top:12px}
+</style></head><body>
+<div class="wrap">
+  <h2>Stopwatch</h2>
+  <div class="time" id="display">00:00.000</div>
+  <div>
+    <button id="start">Start</button>
+    <button id="stop">Stop</button>
+    <button id="reset">Reset</button>
+    <button id="lap">Lap</button>
+  </div>
+  <ul id="laps"></ul>
+  <a href="index.html">← Back to index</a>
+</div>
+<script>
+(() => {
+  let startAt = 0, elapsed = 0, timer = null
+  const display = document.getElementById('display'), laps = document.getElementById('laps')
+
+  function fmt(ms){
+    const m = Math.floor(ms/60000)
+    const s = Math.floor((ms%60000)/1000)
+    const rem = ms%1000
+    return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+String(rem).padStart(3,'0')
+  }
+  function update(){ display.textContent = fmt(elapsed + (startAt? Date.now() - startAt : 0)) }
+
+  document.getElementById('start').addEventListener('click', ()=>{
+    if(startAt) return
+    startAt = Date.now()
+    timer = setInterval(update, 50)
+  })
+  document.getElementById('stop').addEventListener('click', ()=>{
+    if(!startAt) return
+    elapsed += Date.now() - startAt; startAt = 0; clearInterval(timer); update()
+  })
+  document.getElementById('reset').addEventListener('click', ()=>{
+    startAt = 0; elapsed = 0; clearInterval(timer); laps.innerHTML=''; update()
+  })
+  document.getElementById('lap').addEventListener('click', ()=>{
+    const text = display.textContent
+    const li = document.createElement('li'); li.textContent = text; laps.insertBefore(li, laps.firstChild)
+  })
+
+  update()
+})()
+</script>
+</body></html>
