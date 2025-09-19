@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>To-Do List</title>
+<style>
+  body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:30px;background:#fff7f0;color:#111}
+  .wrap{max-width:700px;margin:auto}
+  input[type=text]{padding:12px;width:70%;border-radius:8px;border:1px solid #ddd;font-size:16px}
+  button{padding:12px;border-radius:8px;border:0;margin-left:8px;cursor:pointer}
+  ul{list-style:none;padding:0;margin-top:12px}
+  li{padding:10px;border-radius:8px;background:#fff;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 6px 12px rgba(0,0,0,0.04)}
+  .done{text-decoration:line-through;opacity:0.6}
+  a{display:block;margin-top:12px}
+</style></head><body>
+<div class="wrap">
+  <h2>To‑Do List</h2>
+  <div>
+    <input id="taskInput" placeholder="New task..." />
+    <button id="addBtn">Add</button>
+    <button id="clearBtn">Clear All</button>
+  </div>
+  <ul id="list"></ul>
+  <a href="index.html">← Back to index</a>
+</div>
+<script>
+(() => {
+  const input = document.getElementById('taskInput')
+  const addBtn = document.getElementById('addBtn')
+  const list = document.getElementById('list')
+  const clearBtn = document.getElementById('clearBtn')
+  const STORAGE_KEY = 'mini_todo_v1'
+
+  function load(){
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : []
+  }
+  function save(tasks){ localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)) }
+  function render(){
+    const tasks = load()
+    list.innerHTML = ''
+    tasks.forEach((t, i) => {
+      const li = document.createElement('li')
+      li.innerHTML = '<span class="'+(t.done?'done':'')+'">'+escapeHtml(t.text)+'</span>' +
+                     '<div><button data-act="toggle" data-i="'+i+'">'+(t.done?'Undo':'Done')+'</button>' +
+                     '<button data-act="del" data-i="'+i+'">Delete</button></div>'
+      list.appendChild(li)
+    })
+  }
+  function escapeHtml(s){ return s.replace(/[&<>"]/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])) }
+
+  list.addEventListener('click', e => {
+    const btn = e.target.closest('button')
+    if(!btn) return
+    const i = Number(btn.dataset.i)
+    const act = btn.dataset.act
+    const tasks = load()
+    if(act === 'toggle'){ tasks[i].done = !tasks[i].done; save(tasks); render(); }
+    if(act === 'del'){ tasks.splice(i,1); save(tasks); render(); }
+  })
+
+  addBtn.addEventListener('click', ()=>{
+    const text = input.value.trim(); if(!text) return
+    const tasks = load(); tasks.push({text, done:false}); save(tasks); input.value=''; render()
+  })
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') addBtn.click() })
+
+  clearBtn.addEventListener('click', ()=>{ localStorage.removeItem(STORAGE_KEY); render() })
+
+  render()
+})()
+</script>
+</body></html>
